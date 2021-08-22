@@ -1,0 +1,3 @@
+var sampleText = 'TEST';
+var str1 = 'Aute ullamco ' + sampleText + 'sunt qui reprehenderit nulla voluptate quis ut proident ea adipisicing fugiat ' + sampleText + 'reprehenderit. Ex sit adipisicing sunt nulla consectetur. Mollit veniam magna elit ea ea quis. ' + sampleText + 'Labore ut enim dolore qui ullamco nisi incididunt mollit. Consequat nostrud dolor ex esse sint ipsum est tempor esse culpa veniam nisi';
+console.log(str1);
