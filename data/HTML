@@ -3,7 +3,7 @@
     and web applications.Web browsers receive HTML documents from a web server or from local storage and render them into multimedia webpages. HTML describes the structure of a web page semantically and originally included cues for the appearance of
     the document.
   </p>
-  <img src="./sample.png" width="80%">
+  <img src="/picture" width="80%">
 
   <p style="margin-top:45px;">
     HTML elements are the building blocks of HTML pages. With HTML constructs, images and other objects, such as interactive forms, may be embedded into the rendered page. It provides a means to create structured documents by

@@ -38,6 +38,7 @@ function templateList(files) {
 }
 
 var app = http.createServer(function (request, response) {
+
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
@@ -63,8 +64,16 @@ var app = http.createServer(function (request, response) {
       })
     }
   } else {
-    response.writeHead(404); //fail
-    response.end('Not found');
+    if (_url == '/picture') {
+      fs.readFile('sample.png', function (err, data) {
+        response.writeHead(200);
+        response.write(data);
+        response.end();
+      })
+    } else {
+      response.writeHead(404); //fail
+      response.end('Not found');
+    }
   }
 });
 app.listen(3000);
