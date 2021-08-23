@@ -1,9 +1,9 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
-var template;
+
 function setTemplate(title, datalist, description) {
-  template = `
+  return `
   <!DOCTYPE html>
   <html>
   
@@ -25,6 +25,18 @@ function setTemplate(title, datalist, description) {
   </html>
   `;
 }
+
+function templateList(files) {
+  var datalist = '<ul>';
+  var i = 0;
+  while (i < files.length) {
+    datalist = datalist + `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
+    i++;
+  }
+  datalist = datalist + '</ul>';
+  return datalist;
+}
+
 var app = http.createServer(function (request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
@@ -32,38 +44,21 @@ var app = http.createServer(function (request, response) {
 
   if (pathname === '/') { //checking path
     if (queryData.id === undefined) {
-
-      fs.readdir('./data/', function (err, files) {
+      fs.readdir('./data/', function (err, filelist) {
         var title = 'Welcome';
         var description = 'Hello, Node.js';
-        var datalist = '<ul>';
-        var i = 0;
-        while (i < files.length) {
-          datalist = datalist + `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
-          i++;
-        }
-        datalist = datalist + '</ul>';
-        setTemplate(title, datalist, description);
+        var list = templateList(filelist);
         response.writeHead(200); //success
-        response.end(template);
+        response.end(setTemplate(title, list, description));
       })
 
     } else {
-      fs.readdir('./data/', function (err, files) {
-        var title = 'Welcome';
-        var description = 'Hello, Node.js';
-        var datalist = '<ul>';
-        var i = 0;
-        while (i < files.length) {
-          datalist = datalist + `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
-          i++;
-        }
-        datalist = datalist + '</ul>';
+      fs.readdir('./data/', function (err, filelist) {
+        var list = templateList(filelist);
         fs.readFile(`data/${queryData.id}`, 'utf8', function (err, description) {
           var title = queryData.id; //semantic variable name
-          setTemplate(title, datalist, description);
           response.writeHead(200); //success
-          response.end(template);
+          response.end(setTemplate(title, list, description));
         })
       })
     }

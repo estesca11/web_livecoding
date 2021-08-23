@@ -1,9 +1,9 @@
-function readData(){
+function readData() {
 
 }
 
 function setTemplate(title, datalist, description) {
-    template = `
+    return `
     <!DOCTYPE html>
     <html>
     
