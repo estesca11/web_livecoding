@@ -1,25 +1,23 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+var qs = require('querystring');
 
-function setTemplate(title, datalist, description) {
+function setTemplate(title, datalist, body) {
   return `
   <!DOCTYPE html>
   <html>
-  
   <head>
     <title>WEB1 - ${title}</title>
     <meta charset="utf-8">
   </head>
-  
   <body>
-    <a href="/">
-      <h1>WEB</h1>
-    </a>
+  <h1><a href="/">WEB</a></h1>
     ${datalist}
+    <p><input type="button" onclick="location.href='./create'" value="Create"></p>
     <h2>${title}</h2>
     <p>
-     ${description}
+     ${body}
     </p>
   </body>
   </html>
@@ -63,6 +61,34 @@ var app = http.createServer(function (request, response) {
         })
       })
     }
+  }
+  else if (pathname === '/create') {
+    fs.readdir('./data/', function (err, filelist) {
+      var title = 'WEB - Create';
+      var list = templateList(filelist);
+      var formString;
+      fs.readFile('./form.html', 'utf8', function (err, form) {
+        formString = form;
+        response.writeHead(200); //success
+        response.end(setTemplate(title, list, formString));
+      })
+    })
+  }
+  else if (pathname === '/create_process') {
+    var body = '';
+    request.on('data', function (data) {
+      body += data;
+    });
+    request.on('end', function () {
+      var post = qs.parse(body);
+      var title = post.title;
+      var description = post.description;
+      fs.writeFile(`data/${title}`, description, 'utf8', function (err) {
+        //302 => redirection
+        response.writeHead(302, { Location: `/?id=${title}` }); 
+        response.end('success');
+      });
+    });
   } else {
     if (_url == '/picture') {
       fs.readFile('sample.png', function (err, data) {
@@ -70,7 +96,8 @@ var app = http.createServer(function (request, response) {
         response.write(data);
         response.end();
       })
-    } else {
+    }
+    else {
       response.writeHead(404); //fail
       response.end('Not found');
     }
