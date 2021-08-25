@@ -2,38 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
-var path = require('path');
-
-function setTemplate(title, datalist, body, control) {
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <title>WEB1 - ${title}</title>
-    <meta charset="utf-8">
-  </head>
-  <body>
-  <h1><a href="/">WEB</a></h1>
-    ${datalist}
-    ${control}
-    <h2>${title}</h2>
-    <p>
-     ${body}
-    </p>
-  </body>
-  </html>
-  `;
-}
-function templateList(files) {
-  var datalist = '<ul>';
-  var i = 0;
-  while (i < files.length) {
-    datalist = datalist + `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
-    i++;
-  }
-  datalist = datalist + '</ul>';
-  return datalist;
-}
+var template = require('./lib/template.js');
 
 var app = http.createServer(function (request, response) {
   var _url = request.url;
@@ -44,7 +13,7 @@ var app = http.createServer(function (request, response) {
   function control_update(updateQuery) {
     return ` <input type="button" value="Update" onclick="location.href='./update?id=${updateQuery}'">`;
   }
-  function control_delete(title){
+  function control_delete(title) {
     return `<form action="/delete_process" method="post">
     <input type="hidden" name="id" value="${title}">
     <input type="submit" value="Delete">
@@ -56,9 +25,9 @@ var app = http.createServer(function (request, response) {
       fs.readdir('./data/', function (err, filelist) {
         var title = 'Welcome';
         var description = 'Hello, Node.js';
-        var list = templateList(filelist);
+        var list = template.list(filelist);
         response.writeHead(200); //success
-        response.end(setTemplate(title, list, description, control_create));
+        response.end(template.html(title, list, description, control_create))
       })
 
     } else {
@@ -68,7 +37,7 @@ var app = http.createServer(function (request, response) {
         fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
           var title = filteredId; //semantic variable name
           response.writeHead(200); //success
-          response.end(setTemplate(title, list, description, control_create + control_update(title) + control_delete(title)));
+          response.end(template.html(title, list, description, control_create + control_update(title) + control_delete(title)));
         })
       })
     }
@@ -76,12 +45,12 @@ var app = http.createServer(function (request, response) {
   else if (pathname === '/create') {
     fs.readdir('./data/', function (err, filelist) {
       var title = 'WEB - Create';
-      var list = templateList(filelist);
+      var list = template.list(filelist);
       var formString;
       fs.readFile('./form.html', 'utf8', function (err, form) {
         formString = form;
         response.writeHead(200); //success
-        response.end(setTemplate(title, list, formString, ''));
+        response.end(template.html(title, list, formString, ''));
       })
     })
   }
@@ -117,7 +86,7 @@ var app = http.createServer(function (request, response) {
         </p>
         </form>`;
         response.writeHead(200); //success
-        response.end(setTemplate(title, list, updateString, ''));
+        response.end(template.html(title, list, updateString, ''));
       })
     })
   } else if (pathname === '/update_process') {
