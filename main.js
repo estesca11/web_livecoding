@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
+var path = require('path');
 
 function setTemplate(title, datalist, body, control) {
   return `
@@ -23,7 +24,6 @@ function setTemplate(title, datalist, body, control) {
   </html>
   `;
 }
-
 function templateList(files) {
   var datalist = '<ul>';
   var i = 0;
@@ -36,11 +36,10 @@ function templateList(files) {
 }
 
 var app = http.createServer(function (request, response) {
-
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
-
+  //console.log(url.parse(_url,true));
   var control_create = `<input type="button" value="Create" onclick="location.href='./create'">`
   function control_update(updateQuery) {
     return ` <input type="button" value="Update" onclick="location.href='./update?id=${updateQuery}'">`;
@@ -59,14 +58,15 @@ var app = http.createServer(function (request, response) {
         var description = 'Hello, Node.js';
         var list = templateList(filelist);
         response.writeHead(200); //success
-        response.end(setTemplate(title, list, description, control_create))
+        response.end(setTemplate(title, list, description, control_create));
       })
 
     } else {
       fs.readdir('./data/', function (err, filelist) {
         var list = templateList(filelist);
-        fs.readFile(`data/${queryData.id}`, 'utf8', function (err, description) {
-          var title = queryData.id; //semantic variable name
+        var filteredId=path.parse(queryData.id).base;
+        fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
+          var title = filteredId; //semantic variable name
           response.writeHead(200); //success
           response.end(setTemplate(title, list, description, control_create + control_update(title) + control_delete(title)));
         })
@@ -103,8 +103,9 @@ var app = http.createServer(function (request, response) {
   } else if (pathname === '/update') {
     fs.readdir('./data/', function (err, filelist) {
       var list = templateList(filelist);
-      fs.readFile(`data/${queryData.id}`, 'utf8', function (err, description) {
-        var title = queryData.id; //semantic variable name
+      var filteredId=path.parse(queryData.id).base;
+      fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
+        var title = filteredId; //semantic variable name
         var updateString=`<form action="/update_process" method="post">
         <input type="hidden" name="id" value=${title}>
         <p><input type="text" name="title" placeholder="title" value="${title}"></p>
@@ -145,7 +146,8 @@ var app = http.createServer(function (request, response) {
     request.on('end', function () {
       var post = qs.parse(body);
       var id = post.id;
-      fs.unlink(`data/${id}`, function (err) {
+      var filteredId=path.parse(id).base;
+      fs.unlink(`data/${filteredId}`, function (err) {
         response.writeHead(302, { Location: `/` });
         response.end();
       })

@@ -9,3 +9,7 @@ fs.readFile('./nodejs/sample.txt', 'utf8', function (err, result) {
 });
 
 console.log('C');
+
+function foo(bar) {
+    console.log(bar);
+}
