@@ -2,7 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
-var path = requiure('path');
+var path = require('path');
 var template = require('./lib/template.js');
 
 var app = http.createServer(function (request, response) {
@@ -33,7 +33,7 @@ var app = http.createServer(function (request, response) {
 
     } else {
       fs.readdir('./data/', function (err, filelist) {
-        var list = templateList(filelist);
+        var list = template.list(filelist);
         var filteredId=path.parse(queryData.id).base;
         fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
           var title = filteredId; //semantic variable name
@@ -72,7 +72,7 @@ var app = http.createServer(function (request, response) {
     });
   } else if (pathname === '/update') {
     fs.readdir('./data/', function (err, filelist) {
-      var list = templateList(filelist);
+      var list = template.list(filelist);
       var filteredId=path.parse(queryData.id).base;
       fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
         var title = filteredId; //semantic variable name
